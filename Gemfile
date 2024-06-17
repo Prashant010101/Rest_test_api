@@ -14,10 +14,19 @@ gem "puma", ">= 5.0"
 #Gem rack-cors
 gem "rack-cors"
 
+gem 'byebug'
+gem 'pry'
+
 # Use Json Web Token (JWT) for token based authentication
 gem 'jwt'
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
+
+#Active Storage
+gem 'activestorage'
+
+#Serializer
+gem 'active_model_serializers'
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
