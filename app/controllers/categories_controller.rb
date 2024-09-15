@@ -7,7 +7,8 @@ class CategoriesController < ApplicationController
 
   def show
     @category = Category.find(params[:id])
-    render json: @category
+    # render json: @category
+    render json: {user_serializer: CategorySerializer.new(@category)}
   end
 
   def create

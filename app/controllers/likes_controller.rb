@@ -8,6 +8,7 @@ class LikesController < ApplicationController
       render json: {error: "You can't like more than once"}, status: :unprocessable_entity
     else
       @like = Like.create(user_id: @current_user.id, post_id: @post.id)
+      LikeMailer.like_created(@like).deliver_now
       render json: @like
     end
   end

@@ -12,9 +12,10 @@ module RailsRestApi
     config.load_defaults 7.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
+    # not contain `.rb` files, or that sconfig.time_zone = 'Chennai'hould not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w(assets tasks))
+    config.time_zone = 'New Delhi'
 
     # Configuration for the application, engines, and railties goes here.
     #

@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
+  ActiveAdmin.routes(self)
   resources :users
+  get 'users/:id', to: 'users#show'
   post '/auth/login', to: 'authentication#login'
 
   # Routes for Posts
@@ -7,6 +9,8 @@ Rails.application.routes.draw do
     resources :likes
     resources :comments
   end
+  resources :follows
+  post '/users/verify_otp', to: 'users#verify_otp'
 
   # Wildcard route for catching undefined routes
   get '/*a', to: 'application#not_found'
@@ -14,7 +18,4 @@ Rails.application.routes.draw do
   resources :categories do
     resources :sub_categories
   end
-
-
-
 end
