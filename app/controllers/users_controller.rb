@@ -76,6 +76,7 @@ class UsersController < ApplicationController
       end
     else
       render json: {error: "OTP verification failed!"}
+    end
   end
 
   def update

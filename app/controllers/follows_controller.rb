@@ -6,7 +6,7 @@ class FollowsController < ApplicationController
     if @user.status == 'private' 
 
       render json: {follower: @user.followers, following: @user.followings, total_follower: @user.followers.count, total_following: @user.followings.count}
-    elsif @user.status == 'private' && @user.@user.followers.exists?(@current_user.id)
+    elsif @user.status == 'private' && @user.followers.exists?(@current_user.id)
       render json: {}
     else
       render json: {follower: @user.followers, following: @user.followings, total_follower: @user.followers.count, total_following: @user.followings.count}
