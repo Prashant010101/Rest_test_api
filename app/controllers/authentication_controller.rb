@@ -3,12 +3,13 @@ class AuthenticationController < ApplicationController
 
   def login
     @user = User.find_by_email(params[:email])
-    if @user &.authenticate(params[:password])
+    if @user &.authenticate(params[:password]) && @user.activated == true
       token = JsonWebToken.encode(user_id: @user.id)
       time = Time.now + 24.hours.to_i
+      UserMailer.login_mailer(@user).deliver_now
       render json: { token: token, exp: time.strftime("%m-%d-%Y %H:%M"), username: @user.username }, status: :ok
     else
-      render json: {error: 'unauthorized' }, status: :unauthorized
+      render json: {error: 'you are unauthorized or You are not activated' }, status: :unauthorized
     end
   end
 

@@ -8,7 +8,8 @@ class SubCategoriesController < ApplicationController
   end
 
   def show
-    render json:@sub_categories
+    # render json:@sub_categories
+    render json: {user_serializer: CommentSerializer.new(@sub_categories)}
   end
 
   def create

@@ -25,8 +25,17 @@ gem 'bcrypt', '~> 3.1.7'
 #Active Storage
 gem 'activestorage'
 
+#fast json gem
+gem 'fast_jsonapi'
+
+#Letter Opener Gem
+gem "letter_opener", group: :development
+
+#Active Admin 
+gem 'activeadmin'
+
 #Serializer
-gem 'active_model_serializers'
+# gem 'active_model_serializers'
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"

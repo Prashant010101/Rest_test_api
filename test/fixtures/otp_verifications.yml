@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  otp_code: MyString
+  user_activated: false
+  otp_at: 2024-06-20 17:24:39
+
+two:
+  otp_code: MyString
+  user_activated: false
+  otp_at: 2024-06-20 17:24:39

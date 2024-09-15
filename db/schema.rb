@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_14_072954) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_26_064231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -77,6 +77,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_14_072954) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "follows", force: :cascade do |t|
+    t.integer "follower_id"
+    t.integer "followed_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "likes", force: :cascade do |t|
     t.bigint "post_id", null: false
     t.bigint "user_id", null: false
@@ -84,6 +91,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_14_072954) do
     t.datetime "updated_at", null: false
     t.index ["post_id"], name: "index_likes_on_post_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "otp_verifications", force: :cascade do |t|
+    t.integer "otp_code"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_otp_verifications_on_user_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -110,6 +126,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_14_072954) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "user_activated", default: false
+    t.boolean "activated", default: false
+    t.string "status"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -118,6 +137,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_14_072954) do
   add_foreign_key "comments", "users"
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users"
+  add_foreign_key "otp_verifications", "users"
   add_foreign_key "posts", "users"
   add_foreign_key "sub_categories", "categories"
 end
