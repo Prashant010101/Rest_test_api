@@ -1,6 +1,11 @@
 Rails.application.routes.draw do
-  ActiveAdmin.routes(self)
-  resources :users
+  resources :users do
+    collection do
+      post :send_otp
+      post :verify_otp_and_create_user
+      post :resent_user_otp
+    end
+  end  
   get 'users/:id', to: 'users#show'
   post '/auth/login', to: 'authentication#login'
 

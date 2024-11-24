@@ -1,123 +1,118 @@
 class UsersController < ApplicationController
-  before_action :authorize_request, except: [:index, :show, :create, :verify_otp]
-  # before_action :find_user, except: %i[create index show]
+  before_action :authorize_request, except: [:index, :show, :send_otp, :verify_otp_and_create_user, :resent_user_otp]
 
   def index
-    # debugger
-    @users = User.all
-    data = []
-    @users.each do |user|
-      # data << user
-      data << user.username
-      data << url_for(user.avatar) if user.avatar.present? 
+    users = User.all
+    data = users.map do |user|
+      { username: user.username, avatar_url: user.avatar.present? ? url_for(user.avatar) : nil }
     end
     render json: data
   end
-  
+
   def show
-    @user = User.find(params[:id])
-    if @user.nil? 
-      render json: { error: 'User not found'}, status: :not_found
-    else 
-      # byebug
-      if @user.avatar.attached?
-        # render json: @user
-        # render json: @user.as_json.merge(avatar_path: url_for(@user.avatar)), status: :ok
-        render json: {user_serializer: UserSerializer.new(@user)}
-      else
-        render json: {user: @user, msg: :"there is no avatar"}, status: :ok
-      end
-    end 
-  end 
-  def verify_otp
-    # byebug
-    email =  params[:email]
-    otp_code_in_method = params[:otp]
-    @user = User.find_by(email: email)  #kind of an Extra Variable
-    @otp_obj = OtpVerification.find_by(user_id: @user.id)
-    @otp = OtpVerification.find_by(otp_code: otp_code_in_method, email: email)
-    # byebug
-    if @otp_obj.otp_code != otp_code_in_method.to_i
-      render json: {message: "OTP verification successful"}
-      true
-      if Time.now > @otp_obj.created_at + 180.seconds # && @otp_obj.otp_code != otp_code_in_method.to_i   #Commented after "And" coz it is not neccessary rn
-        render json: { error: "otp expire"}
-      else
-        @user.activated = true
-        @user.save
-        render json: { user_serializere: UserSerializer.new(@user), resule: "you can login"}
-      end
+    user = User.find_by(id: params[:id])
+    if user.nil?
+      render json: { error: 'User not found' }, status: :not_found
     else
-      render json: {error: "Wrong OTP, Doesn't match."}
-      false
+      if user.avatar.attached?
+        render json: UserSerializer.new(user), status: :ok
+      else
+        render json: { user: user, msg: "There is no avatar" }, status: :ok
+      end
     end
   end
 
-  # debugger
-  def create
-    # byebug
-    @user = User.new(user_params)
-
-    random = Random.new
-    # UserMailer.with(email: params[:email])
-
-    @user.otp_verifications.build(otp_code: random.rand(999..9990) + random.rand(1..9)).save
-    @otp = OtpVerification.find_by(user_id: @user.id).otp_code
-    if verify_otp
-      if @user.save
-        # byebug
-        UserMailer.with(user: @user).welcome_email.deliver_now
-        # if @otp
-          token = JsonWebToken.encode(user_id: @user.id)
-          time = Time.now + 24.hours.to_i
-          render json: { user: @user, token: token, exp: time.strftime("%m-%d-%Y %H:%M"), username: @user.username}, status: :ok
+  def send_otp
+    user = User.new(user_params)
+  
+    if user.save
+      otp_code = Random.new.rand(1000..9999)
+      otp_save = user.otp_verifications.build(otp_code: otp_code)
+      if otp_save.save
+        UserMailer.with(user: user, otp_code: otp_code).send_otp(user, otp_code).deliver_now
+        render json: { message: "OTP has been sent to your email. Please verify it.", otp: otp_code }, status: :ok
       else
-        render json: { errors: @user.errors.full_messages },status: :unprocessable_entity
+        user.destroy
+        render json: { error: otp_save.errors.full_messages }, status: :unprocessable_entity
       end
     else
-      render json: {error: "OTP verification failed!"}
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
-  def update
-    # debugger
-    @user = User.find(params[:id])
-    u_id = params[:id]
-    u_id = u_id.to_i  
-    if u_id != @current_user.id
-      render json: {error: 'Unauthorized'}, status: :unauthorized
-    else
-      if @user.update(user_params)
-        render json: @user
-        UserMailer.with(user: @user).update_user.deliver_now
+  def resent_user_otp
+    user = User.find_by(email: params[:email])
+    if user
+      otp_code = Random.new.rand(1000..9999)
+      otp_save = user.otp_verifications.build(otp_code: otp_code)
+      if otp_save.save
+        UserMailer.with(user: user, otp_code: otp_code).send_otp(user, otp_code).deliver_now
+        render json: { message: "OTP has been sent to your email. Please verify it.", otp: otp_code}, status: :ok
       else
-        render json: { errors: @user.errors.full_messages}, status: :unprocessable_entity
+        render json: { error: otp_save.errors.full_messages }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: 'User not found' }, status: :not_found
+    end
+  end
+
+  def verify_otp_and_create_user
+    user = User.find_by(email: params[:email])
+    
+    unless user
+      render json: { error: "User not found. Please request OTP again." }, status: :not_found
+      return
+    end
+  
+    otp_verification = user.otp_verifications.find_by(otp_code: params[:otp])
+    if otp_verification.nil?
+      render json: { error: "Invalid OTP. Please enter the OTP sent to your email." }, status: :unprocessable_entity
+    elsif Time.now > otp_verification.created_at + 180.seconds
+      render json: { error: "OTP expired" }, status: :unprocessable_entity
+    else
+      user.activated = true
+      if user.save
+        UserMailer.with(user: user).welcome_email.deliver_now
+        token = JsonWebToken.encode(user_id: user.id)
+        time = Time.now + 24.hours
+        render json: { user: user, token: token, exp: time.strftime("%m-%d-%Y %H:%M"), username: user.username }, status: :ok
+      else
+        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+  end  
+
+  def update
+    user = User.find_by(id: params[:id])
+    if user.nil? || user.id != @current_user.id
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    else
+      if user.update(user_params)
+        UserMailer.with(user: user).update_user.deliver_now
+        render json: user, status: :ok
+      else
+        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
       end
     end
   end
 
   def destroy
-    @user = User.find(params[:id])
-    u_id = params[:id]
-    u_id = u_id.to_i  
-    if u_id.id != @current_user.id
-      render json: {error: 'Unauthorized'}, status: :unauthorized
+    user = User.find_by(id: params[:id])
+    if user.nil? || user.id != @current_user.id
+      render json: { error: 'Unauthorized' }, status: :unauthorized
     else
-      if @user.destroy
-        render json: {message: 'User deleted successfully.' }, status: :ok
-        UserMailer.with(user: @user).delete_user.deliver_now
+      if user.destroy
+        UserMailer.with(user: user).delete_user.deliver_now
+        render json: { message: 'User deleted successfully.' }, status: :ok
       else
-        render json: {error: 'Some Error occured while deleting :('}, status: :not_found
+        render json: { error: 'Some error occurred while deleting :(' }, status: :unprocessable_entity
       end
     end
   end
 
   private
 
-  def otp_params
-    params.permit(:otp_code, :email)
-  end
-
   def user_params
-    params.permit(:avatar, :name, :username, :email, :password, :password_confirmation, :status)
+    params.require(:user).permit(:avatar, :name, :username, :email, :password, :password_confirmation, :status, :activated)
   end
 end
