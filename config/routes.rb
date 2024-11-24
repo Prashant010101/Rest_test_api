@@ -1,11 +1,17 @@
 Rails.application.routes.draw do
-  resources :users do
-    collection do
-      post :send_otp
-      post :verify_otp_and_create_user
-      post :resent_user_otp
-    end
-  end  
+  get 'registration/verify_otp_and_activate'
+  get 'otp/send_otp'
+  get 'otp/resent_otp'
+  resources :users, only: [:index, :show, :update, :destroy]
+
+  namespace :otp do
+    post :send_otp
+    post :resend_otp
+  end
+
+  namespace :registration do
+    post :verify_otp_and_activate
+  end
   get 'users/:id', to: 'users#show'
   post '/auth/login', to: 'authentication#login'
 
