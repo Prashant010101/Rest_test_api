@@ -9,8 +9,8 @@ class User < ApplicationRecord
   has_many :followings, through: :following_relationships, source: :followed
   #others
   has_secure_password
-  has_many :likes
-  has_many :otp_verifications
+  has_many :likes, dependent: :destroy
+  has_many :otp_verifications, dependent: :destroy
   has_many :posts, dependent: :destroy
   has_many :comments, dependent: :destroy
   # mount_uploader :avatar, AvatarUploader

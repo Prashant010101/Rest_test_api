@@ -1,3 +1,113 @@
-<h1>Hello <%= @user.name %> </h1>
-<h1>OTP: <%= @otp %> </h1>
-<h3>Enter the OTP for completion of your SignUp.</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to [Your Platform Name]</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .header {
+      background-color: #4caf50;
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .content h2 {
+      margin-top: 0;
+      color: #4caf50;
+    }
+    .content p {
+      line-height: 1.6;
+    }
+    .otp-box {
+      background-color: #f9f9f9;
+      border: 1px dashed #4caf50;
+      color: #4caf50;
+      font-size: 24px;
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+      margin: 20px 0;
+    }
+    .cta-button {
+      display: inline-block;
+      background-color: #4caf50;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .cta-button:hover {
+      background-color: #45a049;
+    }
+    .footer {
+      background-color: #f1f1f1;
+      text-align: center;
+      padding: 10px;
+      font-size: 12px;
+      color: #666;
+    }
+    .footer a {
+      color: #4caf50;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>Welcome to FutureApp, <%= @user.name %>!</h1>
+    </div>
+    
+    <!-- Main Content Section -->
+    <div class="content">
+      <h2>Hello <%= @user.username %>!</h2>
+      <p>
+        Thank you for joining <strong>FutureApp</strong>. We're thrilled to have you onboard!
+      </p>
+      
+      <p>
+        You've successfully verified your account, you are activated and can gain access to your personalized dashboard and all our amazing features.
+      </p>
+      
+      <!-- Call-to-Action Button -->
+      <p style="text-align: center;">
+        <a href="[Insert Your Activation URL Here]" class="cta-button">Shuru Karoo!</a>
+      </p>
+    </div>
+    
+    <!-- Footer Section -->
+    <div class="footer">
+      <p>
+        Need help? Visit our <a href="[Insert Help Center URL]">Help Center</a> or contact us at <a href="mailto:support@futureapp.com">support@futureapp.com</a>.
+      </p>
+      <p>
+        &copy; <%= Time.now.year %> FutureApp. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

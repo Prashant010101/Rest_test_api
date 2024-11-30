@@ -40,7 +40,7 @@ class UserMailer < ApplicationMailer
     mail(
       from: "prashant0jangir@gmail.com",
       to: @user.email,
-      subject: "#{@user.username}Your OTP is #{@otp} for verification"
+      subject: "SignUp OTP  for verification in FutureApp"
       )
   end
 end

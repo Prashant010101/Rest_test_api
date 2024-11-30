@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
-  get 'registration/verify_otp_and_activate'
-  get 'otp/send_otp'
-  get 'otp/resent_otp'
+
+  # Custom Routes
+  post '/users/verify_otp', to: 'users#verify_otp'
+  get '/auth/:provider/callback', to: 'sessions#omniauth'
+  get 'users/:id', to: 'users#show'
+  post '/auth/login', to: 'authentication#login'
+
   resources :users, only: [:index, :show, :update, :destroy]
 
   namespace :otp do
@@ -12,8 +16,6 @@ Rails.application.routes.draw do
   namespace :registration do
     post :verify_otp_and_activate
   end
-  get 'users/:id', to: 'users#show'
-  post '/auth/login', to: 'authentication#login'
 
   # Routes for Posts
   resources :posts do
@@ -21,7 +23,6 @@ Rails.application.routes.draw do
     resources :comments
   end
   resources :follows
-  post '/users/verify_otp', to: 'users#verify_otp'
 
   # Wildcard route for catching undefined routes
   get '/*a', to: 'application#not_found'
